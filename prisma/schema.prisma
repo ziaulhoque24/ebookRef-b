@@ -9,12 +9,102 @@ datasource db {
 }
 
 model User {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  email        String   @unique
-  password     String
-  firstName    String
-  lastName     String
-  referralCode String?  @unique
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id               String     @id @default(auto()) @map("_id") @db.ObjectId
+  email            String     @unique
+  password         String
+  firstName        String
+  lastName         String
+  referralCode     String?    @unique
+  credits          Int        @default(0)
+  hasMadePurchase  Boolean    @default(false)
+  referralsMade    Referral[] @relation("Referrer")
+  referralReceived Referral?  @relation("ReferredUser")
+  cart             Cart?
+  orders           Order[]
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+}
+
+model Referral {
+  id        String         @id @default(auto()) @map("_id") @db.ObjectId
+  status    ReferralStatus @default(PENDING)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  // person who owns link
+  referrerId String @db.ObjectId
+  referrer   User   @relation("Referrer", fields: [referrerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  // new user who signed up 
+  referredUserId String @unique @db.ObjectId // A user can only be referred once
+  referredUser   User   @relation("ReferredUser", fields: [referredUserId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+enum ReferralStatus {
+  PENDING
+  CONVERTED
+}
+
+model Ebook {
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String
+  author      String
+  price       Float
+  coverImage  String
+  fileUrl     String
+
+  cartItems  OrderItem[]
+  orderItems CartItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Cart {
+  id     String     @id @default(auto()) @map("_id") @db.ObjectId
+  userId String     @unique @db.ObjectId
+  user   User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items  CartItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CartItem {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  cartId   String @db.ObjectId
+  cart     Cart   @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  ebookId  String @db.ObjectId
+  ebook    Ebook  @relation(fields: [ebookId], references: [id], onDelete: Cascade)
+  quantity Int    @default(1)
+
+  createdAt DateTime @default(now())
+
+  @@unique([cartId, ebookId])
+}
+
+model Order {
+  id     String      @id @default(auto()) @map("_id") @db.ObjectId
+  userId String      @db.ObjectId
+  user   User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items  OrderItem[]
+
+  totalAmount Float
+  status      String @default("COMPLETED")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model OrderItem {
+  id              String @id @default(auto()) @map("_id") @db.ObjectId
+  orderId         String @db.ObjectId
+  order           Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  ebookId         String @db.ObjectId
+  ebook           Ebook  @relation(fields: [ebookId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  priceAtPurchase Float
+  quantity        Int
+
+  createdAt DateTime @default(now())
 }

@@ -45,6 +45,12 @@ enum ReferralStatus {
   CONVERTED
 }
 
+model Genre {
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  name        String       @unique
+  ebookGenres EbookGenre[]
+}
+
 model Ebook {
   id          String @id @default(auto()) @map("_id") @db.ObjectId
   title       String
@@ -54,11 +60,22 @@ model Ebook {
   coverImage  String
   fileUrl     String
 
-  cartItems  OrderItem[]
-  orderItems CartItem[]
+  cartItems   OrderItem[]
+  orderItems  CartItem[]
+  ebookGenres EbookGenre[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model EbookGenre {
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  ebookId String @db.ObjectId
+  ebook   Ebook  @relation(fields: [ebookId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  genreId String @db.ObjectId
+  genre   Genre  @relation(fields: [genreId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([ebookId, genreId])
 }
 
 model Cart {

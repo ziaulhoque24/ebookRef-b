@@ -19,7 +19,6 @@ model User {
   hasMadePurchase  Boolean    @default(false)
   referralsMade    Referral[] @relation("Referrer")
   referralReceived Referral?  @relation("ReferredUser")
-  cart             Cart?
   orders           Order[]
   createdAt        DateTime   @default(now())
   updatedAt        DateTime   @updatedAt
@@ -60,9 +59,8 @@ model Ebook {
   coverImage  String
   fileUrl     String
 
-  cartItems   OrderItem[]
-  orderItems  CartItem[]
   ebookGenres EbookGenre[]
+  orderItems  OrderItem[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -76,29 +74,6 @@ model EbookGenre {
   genre   Genre  @relation(fields: [genreId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@unique([ebookId, genreId])
-}
-
-model Cart {
-  id     String     @id @default(auto()) @map("_id") @db.ObjectId
-  userId String     @unique @db.ObjectId
-  user   User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  items  CartItem[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model CartItem {
-  id       String @id @default(auto()) @map("_id") @db.ObjectId
-  cartId   String @db.ObjectId
-  cart     Cart   @relation(fields: [cartId], references: [id], onDelete: Cascade)
-  ebookId  String @db.ObjectId
-  ebook    Ebook  @relation(fields: [ebookId], references: [id], onDelete: Cascade)
-  quantity Int    @default(1)
-
-  createdAt DateTime @default(now())
-
-  @@unique([cartId, ebookId])
 }
 
 model Order {

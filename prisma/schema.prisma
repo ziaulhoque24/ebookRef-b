@@ -83,6 +83,8 @@ model Order {
   items  OrderItem[]
 
   totalAmount Float
+  creditsUsed Float  @default(0)
+  amountPaid  Float
   status      String @default("COMPLETED")
 
   createdAt DateTime @default(now())
@@ -96,7 +98,6 @@ model OrderItem {
   ebookId         String @db.ObjectId
   ebook           Ebook  @relation(fields: [ebookId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   priceAtPurchase Float
-  quantity        Int
 
   createdAt DateTime @default(now())
 }

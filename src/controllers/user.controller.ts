@@ -3,11 +3,7 @@ import prisma from "../lib/prisma";
 
 export const getDashboard = async (req: Request, res: Response) => {
   try {
-    const userId = req.user?.id;
-
-    if (!userId) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
+    const userId = req.user.id;
 
     const user = await prisma.user.findUnique({
       where: { id: userId },

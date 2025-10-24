@@ -121,7 +121,7 @@ const booksData = [
     author: "Alex Michaelides",
     price: 10.99,
     coverImage:
-      "https://en.wikipedia.org/wiki/File:The_Silent_Patient_early_2019_UK_edition.png",
+      "https://upload.wikimedia.org/wikipedia/en/d/df/The_Silent_Patient_early_2019_UK_edition.png",
     fileUrl: "https://pdfdrive.com.co/wp-content/pdfh/The-Silent-Patient.pdf",
     genres: [
       "Thriller",

@@ -45,3 +45,55 @@ export const getDashboard = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+export const getMyBooks = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user.id;
+
+    const orders = await prisma.order.findMany({
+      where: { userId },
+      include: {
+        items: {
+          include: {
+            ebook: {
+              include: {
+                ebookGenres: {
+                  include: {
+                    genre: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const purchasedEbooksMap = new Map();
+
+    orders.forEach((order) => {
+      order.items.forEach((item) => {
+        if (!purchasedEbooksMap.has(item.ebook.id)) {
+          purchasedEbooksMap.set(item.ebook.id, {
+            id: item.ebook.id,
+            title: item.ebook.title,
+            description: item.ebook.description,
+            author: item.ebook.author,
+            price: item.ebook.price,
+            coverImage: item.ebook.coverImage,
+            fileUrl: item.ebook.fileUrl,
+            purchasedAt: order.createdAt,
+            genres: item.ebook.ebookGenres.map((eg) => eg.genre),
+          });
+        }
+      });
+    });
+
+    const books = Array.from(purchasedEbooksMap.values());
+
+    res.status(200).json(books);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};

@@ -6,7 +6,7 @@ import mainRouter from "./routes/index";
 dotenv.config();
 
 const app: Express = express();
-const PORT = process.env.PORT || 4001;
+const PORT = Number(process.env.PORT) || 4001;
 
 app.use(
   cors({
@@ -17,6 +17,6 @@ app.use(express.json());
 
 app.use("/api", mainRouter);
 
-app.listen(PORT, () => {
-  console.log(`Express server running on http://localhost:${PORT}`);
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Express server running on http://0.0.0.0:${PORT}`);
 });
